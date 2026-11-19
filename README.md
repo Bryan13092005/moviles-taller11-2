@@ -25,9 +25,11 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-The chat reads Gemini responses aloud in Spanish by default. Use **Voz ON/OFF** to
+The chat reads assistant responses aloud in Spanish by default. Use **Voz ON/OFF** to
 control automatic playback, **Detener** to stop it, or **Escuchar** to replay an
 assistant message. On iOS devices, silent mode must be off to hear speech.
+Suggested prompts fill the message field without sending automatically. Assistant
+messages can also be copied using **Copiar**.
 
 ## Get a fresh project
 
