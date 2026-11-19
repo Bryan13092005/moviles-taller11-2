@@ -9,7 +9,10 @@ import { MessageBubble } from '../components/MessageBubble';
 export const ChatScreen: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
-  const { messages, isLoading, error, sendMessage, clearChat } = useChat();
+  const {
+    messages, isLoading, error, sendMessage, clearChat,
+    isSpeechEnabled, isSpeaking, speakText, toggleSpeech, stopSpeaking,
+  } = useChat();
 
   const handleSend = async () => {
     if (!inputText.trim() || isLoading) return;
@@ -23,9 +26,20 @@ export const ChatScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Chat con Gemini</Text>
-        <TouchableOpacity onPress={clearChat} style={styles.clearBtn}>
-          <Text style={styles.clearText}>Limpiar</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity onPress={toggleSpeech} style={styles.headerBtn}
+            accessibilityRole='button' accessibilityState={{ checked: isSpeechEnabled }}>
+            <Text style={styles.voiceText}>Voz {isSpeechEnabled ? 'ON' : 'OFF'}</Text>
+          </TouchableOpacity>
+          {isSpeaking && (
+            <TouchableOpacity onPress={stopSpeaking} style={styles.headerBtn} accessibilityRole='button'>
+              <Text style={styles.voiceText}>Detener</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={clearChat} style={styles.headerBtn} accessibilityRole='button'>
+            <Text style={styles.clearText}>Limpiar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <KeyboardAvoidingView style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -34,7 +48,7 @@ export const ChatScreen: React.FC = () => {
           ref={flatListRef}
           data={messages}
           keyExtractor={item => item.id}
-          renderItem={({ item }) => <MessageBubble message={item} />}
+          renderItem={({ item }) => <MessageBubble message={item} onSpeak={speakText} />}
           contentContainerStyle={styles.messagesList}
         />
         {isLoading && (
@@ -76,6 +90,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -85,7 +100,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E7EB',
   },
   headerTitle: { fontSize: 18, fontWeight: '600', color: '#111827' },
-  clearBtn: { paddingHorizontal: 12, paddingVertical: 6 },
+  headerActions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' },
+  headerBtn: { paddingHorizontal: 6, paddingVertical: 8 },
+  voiceText: { color: '#2563EB', fontSize: 14 },
   clearText: { color: '#EF4444', fontSize: 14 },
   messagesList: { padding: 16, paddingBottom: 8 },
   loadingContainer: {

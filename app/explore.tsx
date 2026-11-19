@@ -120,7 +120,7 @@ export default function TabTwoScreen() {
           </Collapsible>
         </ThemedView>
         {Platform.OS === 'web' && <WebBadge />}
-      </ThemedView>
+        </ThemedView>  
     </ScrollView>
   );
 }

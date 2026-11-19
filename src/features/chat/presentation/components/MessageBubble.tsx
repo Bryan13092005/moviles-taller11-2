@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Message } from '../../domain/entities/Message';
 import { MarkdownText } from './MarkdownText';
 
-interface Props { message: Message; }
+interface Props { message: Message; onSpeak?: (text: string) => void; }
 
-export const MessageBubble: React.FC<Props> = ({ message }) => {
+export const MessageBubble: React.FC<Props> = ({ message, onSpeak }) => {
   const isUser = message.role === 'user';
   return (
     <View style={[styles.container, isUser ? styles.userContainer : styles.aiContainer]}>
@@ -14,11 +14,19 @@ export const MessageBubble: React.FC<Props> = ({ message }) => {
           {message.content}
         </MarkdownText>
       </View>
-      <Text style={styles.timestamp}>
-        {message.timestamp.toLocaleTimeString('es-EC', {
-          hour: '2-digit', minute: '2-digit',
-        })}
-      </Text>
+      <View style={styles.metadata}>
+        <Text style={styles.timestamp}>
+          {message.timestamp.toLocaleTimeString('es-EC', {
+            hour: '2-digit', minute: '2-digit',
+          })}
+        </Text>
+        {!isUser && onSpeak && (
+          <TouchableOpacity onPress={() => onSpeak(message.content)} accessibilityRole='button'
+            accessibilityLabel='Escuchar mensaje'>
+            <Text style={styles.speakText}>🔊 Escuchar</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -33,5 +41,7 @@ const styles = StyleSheet.create({
   text:         { fontSize: 15, lineHeight: 21 },
   userText:     { color: '#FFFFFF' },
   aiText:       { color: '#1E293B' },
-  timestamp:    { fontSize: 10, color: '#94A3B8', marginTop: 2 },
+  metadata:     { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
+  timestamp:    { fontSize: 10, color: '#94A3B8' },
+  speakText:    { fontSize: 12, color: '#2563EB', paddingVertical: 6 },
 });

@@ -14,6 +14,7 @@ type InlineToken =
 
 function parseInline(text: string): InlineToken[] {
   const tokens: InlineToken[] = [];
+  // Reconoce negrita, codigo en linea y cursiva, conservando el texto intermedio.
   const regex = /(\*\*|__)(.+?)\1|(`)(.+?)\3|(\*|_)(.+?)\5/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -47,6 +48,7 @@ function parseInline(text: string): InlineToken[] {
 
 function renderInline(text: string, baseStyle?: StyleProp<TextStyle>, keyPrefix = '') {
   const tokens = parseInline(text);
+  // Cada token se representa como un Text anidado para aplicar formato sin separar el flujo.
   return tokens.map((token, index) => {
     const key = `${keyPrefix}-${index}`;
     switch (token.type) {
@@ -80,6 +82,7 @@ function renderInline(text: string, baseStyle?: StyleProp<TextStyle>, keyPrefix 
 
 export const MarkdownText: React.FC<Props> = ({ children, style }) => {
   const content = children ?? '';
+  // Los segmentos impares entre delimitadores de triple acento grave son bloques de codigo.
   const segments = content.split(/```/);
 
   return (
@@ -100,10 +103,12 @@ export const MarkdownText: React.FC<Props> = ({ children, style }) => {
         return (
           <View key={`seg-${segIndex}`}>
             {lines.map((line, lineIndex) => {
+              // Mantiene el espacio visual de las lineas en blanco dentro del contenido Markdown.
               if (line.trim() === '') {
                 return <View key={`line-${segIndex}-${lineIndex}`} style={styles.emptyLine} />;
               }
 
+              // Prioriza encabezados antes de listas y texto para interpretar cada linea una sola vez.
               const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
               if (headingMatch) {
                 const level = headingMatch[1].length;
